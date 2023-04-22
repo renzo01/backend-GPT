@@ -1,6 +1,7 @@
 const { ChatGPTAPI } = require('chatgpt');
 require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 const port = 4000;
 
@@ -8,10 +9,19 @@ const port = 4000;
 const gptApi = new ChatGPTAPI({
     apiKey: process.env.OPENAI_API_KEY,
     debug: true
-})
+});
 
-app.post('/envio-correo-personalizado',(req, res) => {
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
+app.post('/chat',async (req, res) => {
+    const inputMessage = req.body.inputMessage;
+    try {
+        const respuesta = await gptApi.sendMessage(inputMessage);
+        res.status(200).send(respuesta);
+    } catch (error) {
+        res.status(500).send('Ocurrio un error');
+    }
 })
 
 app.get('/', (req,res) =>{
